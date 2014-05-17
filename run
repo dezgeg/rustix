@@ -1,0 +1,12 @@
+#!/bin/bash
+dir="$(readlink -f "$(dirname "$0")")"
+
+if [ "$1" = "" ]; then
+    echo "no command"
+    exit 1
+fi
+cmd="$1"
+shift
+
+rustc "$dir/src/$cmd.rs" -o "$dir/out/$cmd" || exit 1
+exec "$dir/out/$cmd" "$@"
