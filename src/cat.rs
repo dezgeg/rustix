@@ -5,7 +5,7 @@ use std::io::BufferedReader;
 
 fn handle_line(line: &str, line_number: int, opts: &Matches) {
     if opts.opt_present("n") {
-        print!("{:6d}  {}", line_number, line);
+        print!("{:6d}\t{}", line_number, line);
     } else {
         print!("{}", line);
     }
