@@ -34,11 +34,9 @@ end_test() {
 # Simple stdin/stdout based test that uses the command from binutils as reference
 # $1 = command line
 # $2 = stdin text, in echo -e format (defaults to empty string)
-# $3 = expected stdout text, in echo -e format (defaults to empty string)
 check_equal() {
     local cmd="$1"
     local stdin="$2"
-    local expected_stdout="$3"
 
     begin_test || return
     echo -ne "$stdin" | $cmd > /tmp/expected.txt 2>/dev/null
@@ -50,7 +48,7 @@ check_equal() {
 }
 
 # Enumerate testcase files
-for test_prog in $(cd "$dir/tests"; echo * | sed -e 's/\.sh$//'); do
+for test_prog in $(cd "$dir/tests"; echo * | tr ' ' '\n' | sed -e 's/\.sh$//'); do
     echo -n "Running tests for $test_prog:"
     if ! make "out/$test_prog" >/dev/null 2>/dev/null; then
         echo " BUILD FAILED"
