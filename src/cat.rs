@@ -15,18 +15,18 @@ fn main() {
     let opts = [
         optflag("n", "number", "number all output lines"),
     ];
-    let mut args = os::args();
-
-    // cat only stdin if no args
-    if args.len() == 1 {
-        args = ~[~"", ~"-"];
-    }
-    let matches = match getopts(args.tail(), opts) {
+    let matches = match getopts(os::args().tail(), opts) {
         Ok(m) => m,
         Err(f) => fail!(f.to_err_msg()),
     };
 
-    for name in matches.free.iter() {
+    // cat only stdin if no args
+    let filenames = if matches.free.is_empty() {
+        vec!(~"-")
+    } else {
+        matches.free.clone()
+    };
+    for name in filenames.iter() {
         let filename = if name == &~"-" { ~"/dev/stdin" } else { name.clone() };
         match io::File::open(&Path::new(filename.clone())) {
             Err(e) => println!("cat: cannot open {}: {}", filename, e),
