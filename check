@@ -1,0 +1,61 @@
+#!/bin/bash
+
+# Globals
+dir="$(readlink -f "$(dirname "$0")")"
+current_test="(???)"
+
+# Start of a test case: print the header
+# Uses bash's caller primitive to get the file & line of the testcase.
+# Return non-zero to skip this test. (TODO: implement this)
+begin_test() {
+    declare -a caller_info=( $(caller 1) )
+    current_test=""${caller_info[2]#$dir/}":${caller_info[0]}"
+
+    echo -n "    $current_test - "
+    return 0
+}
+
+end_test() {
+    local expected_file=$1
+    local actual_file=$2
+    local expected_status=$3
+    local actual_status=$4
+
+    if [ "$((! $expected_status))" != "$((! $actual_status))" ]; then
+        echo "FAIL: Status code mismatch: expected $expected_status, got $actual_status"
+    elif ! cmp -s "$expected_file" "$actual_file"; then
+        echo "FAIL: File content mismatch"
+        git diff --no-index --color "$expected_file" "$actual_file"
+    else
+        echo "OKAY"
+    fi
+}
+
+# Simple stdin/stdout based test that uses the command from binutils as reference
+# $1 = command line
+# $2 = stdin text, in echo -e format (defaults to empty string)
+# $3 = expected stdout text, in echo -e format (defaults to empty string)
+check_equal() {
+    local cmd="$1"
+    local stdin="$2"
+    local expected_stdout="$3"
+
+    begin_test || return
+    echo -ne "$stdin" | $cmd > /tmp/expected.txt 2>/dev/null
+    expected_status=$?
+    echo -ne "$stdin" | "$dir/out/"$cmd > /tmp/actual.txt 2>/dev/null
+    actual_status=$?
+
+    end_test /tmp/expected.txt /tmp/actual.txt $expected_status $actual_status
+}
+
+# Enumerate testcase files
+for test_prog in $(cd "$dir/tests"; echo * | sed -e 's/\.sh$//'); do
+    echo -n "Running tests for $test_prog:"
+    if ! make "out/$test_prog" >/dev/null 2>/dev/null; then
+        echo " BUILD FAILED"
+    else
+        echo
+        . "$dir/tests/$test_prog.sh"
+    fi
+done
