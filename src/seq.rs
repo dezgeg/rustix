@@ -12,7 +12,7 @@ fn do_seq(start: f64, incr: f64, end: f64) {
 fn main() {
     let args = os::args();
     // std::option::collect would be useful but it gives some error
-    let nums = args.iter().skip(1).map(|s| match from_str::<f64>(s.clone()) {
+    let nums = args.iter().skip(1).map(|s| match from_str::<f64>(s.as_slice()) {
         None => fail!("seq: not a number"),
         Some(x) => x,
     }).collect::<Vec<f64>>();

@@ -22,12 +22,12 @@ fn main() {
 
     // cat only stdin if no args
     let filenames = if matches.free.is_empty() {
-        vec!(~"-")
+        vec!("-".to_string())
     } else {
         matches.free.clone()
     };
     for name in filenames.iter() {
-        let filename = if name == &~"-" { ~"/dev/stdin" } else { name.clone() };
+        let filename = if name.as_slice() == "-" { "/dev/stdin".to_string() } else { name.clone() };
         match io::File::open(&Path::new(filename.clone())) {
             Err(e) => println!("cat: cannot open {}: {}", filename, e),
             Ok(file) => {
@@ -38,7 +38,7 @@ fn main() {
                             println!("cat: cannot read from {}: {}", filename, e);
                             break;
                         }
-                        Ok(line) => handle_line(line, line_number, &matches),
+                        Ok(line) => handle_line(line.as_slice(), line_number, &matches),
                     }
                     line_number += 1;
                 }
