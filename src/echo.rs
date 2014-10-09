@@ -7,13 +7,13 @@ fn main() {
 
     for arg in os::args().iter().skip(1) {
         if first {
-            if arg == &~"-e" {
+            if arg == &"-e".to_string() {
                 escapes = true;
                 continue;
-            } else if arg == &~"-E" {
+            } else if arg == &"-E".to_string() {
                 escapes = false;
                 continue;
-            } else if arg == &~"-n" {
+            } else if arg == &"-n".to_string() {
                 newline = false;
                 continue;
             }
